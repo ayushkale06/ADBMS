@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Evaluation - {{ app_details.student_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-info text-white d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-clipboard-check fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Student Evaluation Form</h3>
+                <p class="text-muted small">Evaluating Candidate: <strong>{{ app_details.student_name }}</strong> ({{ app_details.internship_title }})</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('faculty.create_evaluation', application_id=app_details.application_id) }}">
+                <div class="row g-3">
+                    <div class="col-md-4 mb-3">
+                        <label for="technical_score" class="form-label fw-semibold">Technical Score (1-5)</label>
+                        <select class="form-select" id="technical_score" name="technical_score" required>
+                            <option value="5" selected>5 - Outstanding</option>
+                            <option value="4">4 - Above Average</option>
+                            <option value="3">3 - Satisfactory</option>
+                            <option value="2">2 - Needs Improvement</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="communication_score" class="form-label fw-semibold">Communication (1-5)</label>
+                        <select class="form-select" id="communication_score" name="communication_score" required>
+                            <option value="5" selected>5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Moderate</option>
+                            <option value="2">2 - Basic</option>
+                            <option value="1">1 - Deficient</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="overall_rating" class="form-label fw-semibold">Overall Rating (1-5)</label>
+                        <select class="form-select" id="overall_rating" name="overall_rating" required>
+                            <option value="5" selected>5 ★★★★★</option>
+                            <option value="4">4 ★★★★☆</option>
+                            <option value="3">3 ★★★☆☆</option>
+                            <option value="2">2 ★★☆☆☆</option>
+                            <option value="1">1 ★☆☆☆☆</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="comments" class="form-label fw-semibold">Faculty Feedback & Assessment Comments</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="4" required placeholder="Provide detailed remarks on technical competency, project contributions, and learning outcomes..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-info btn-lg py-2 fw-bold text-white shadow-sm">
+                        <i class="fa-solid fa-check-double me-2"></i> Submit Evaluation Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

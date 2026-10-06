@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Post-Internship Feedback & Rating{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-success text-white d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-star fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Internship Feedback & Company Rating</h3>
+                <p class="text-muted small">Share your experience to help future students and improve company partnerships</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('student.submit_student_feedback', application_id=application_id) }}">
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="company_culture" class="form-label fw-semibold">Company Culture (1-5)</label>
+                        <select class="form-select" id="company_culture" name="company_culture" required>
+                            <option value="5" selected>5 ★★★★★ Excellent</option>
+                            <option value="4">4 ★★★★☆ Good</option>
+                            <option value="3">3 ★★★☆☆ Average</option>
+                            <option value="2">2 ★★☆☆☆ Needs Work</option>
+                            <option value="1">1 ★☆☆☆☆ Poor</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="mentorship" class="form-label fw-semibold">Mentorship Quality (1-5)</label>
+                        <select class="form-select" id="mentorship" name="mentorship" required>
+                            <option value="5" selected>5 ★★★★★ Outstanding Guidance</option>
+                            <option value="4">4 ★★★★☆ Supportive</option>
+                            <option value="3">3 ★★★☆☆ Moderate</option>
+                            <option value="2">2 ★★☆☆☆ Minimal</option>
+                            <option value="1">1 ★☆☆☆☆ None</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="technical_learning" class="form-label fw-semibold">Technical Learning (1-5)</label>
+                        <select class="form-select" id="technical_learning" name="technical_learning" required>
+                            <option value="5" selected>5 ★★★★★ High Skill Growth</option>
+                            <option value="4">4 ★★★★☆ Solid Learning</option>
+                            <option value="3">3 ★★★☆☆ Adequate</option>
+                            <option value="2">2 ★★☆☆☆ Low Growth</option>
+                            <option value="1">1 ★☆☆☆☆ No Growth</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="work_environment" class="form-label fw-semibold">Work Environment (1-5)</label>
+                        <select class="form-select" id="work_environment" name="work_environment" required>
+                            <option value="5" selected>5 ★★★★★ Great Tools & Setup</option>
+                            <option value="4">4 ★★★★☆ Good Setup</option>
+                            <option value="3">3 ★★★☆☆ Average</option>
+                            <option value="2">2 ★★☆☆☆ Poor Tools</option>
+                            <option value="1">1 ★☆☆☆☆ Unfavorable</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="overall" class="form-label fw-semibold">Overall Experience Score (1-5)</label>
+                        <select class="form-select" id="overall" name="overall" required>
+                            <option value="5" selected>5 ★★★★★ Highly Recommended</option>
+                            <option value="4">4 ★★★★☆ Good Internship</option>
+                            <option value="3">3 ★★★☆☆ Satisfactory</option>
+                            <option value="2">2 ★★☆☆☆ Disappointing</option>
+                            <option value="1">1 ★☆☆☆☆ Would Not Recommend</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="company_rating" class="form-label fw-semibold">Public Star Rating for Company</label>
+                        <select class="form-select" id="company_rating" name="company_rating" required>
+                            <option value="5" selected>5 Stars ★★★★★</option>
+                            <option value="4">4 Stars ★★★★☆</option>
+                            <option value="3">3 Stars ★★★☆☆</option>
+                            <option value="2">2 Stars ★★☆☆☆</option>
+                            <option value="1">1 Star  ★☆☆☆☆</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="comments" class="form-label fw-semibold">Detailed Review & Advice for Juniors</label>
+                        <textarea class="form-control" id="comments" name="comments" rows="4" placeholder="Describe your key projects, day-to-day responsibilities, and advice for future applicants..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-success btn-lg py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Submit Internship Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

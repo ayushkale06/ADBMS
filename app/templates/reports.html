@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block title %}System Analytics & Reports - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Analytical Reports & Metrics</h2>
+        <p class="text-muted mb-0">Detailed breakdown of database views, placement rates, student performance, and compliance</p>
+    </div>
+    <a href="{{ url_for('main.export_applications_csv') }}" class="btn btn-success"><i class="fa-solid fa-file-csv me-1"></i> Export Data CSV</a>
+</div>
+
+<!-- Tab Navigation for Reports -->
+<ul class="nav nav-tabs nav-fill mb-4" id="reportTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold py-3" id="placement-tab" data-bs-toggle="tab" data-bs-target="#placement" type="button"><i class="fa-solid fa-graduation-cap me-2"></i>Placement Summary</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-3" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button"><i class="fa-solid fa-user-check me-2"></i>Student Performance</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-3" id="companies-tab" data-bs-toggle="tab" data-bs-target="#companies" type="button"><i class="fa-solid fa-building me-2"></i>Company Statistics</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-3" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button"><i class="fa-solid fa-server me-2"></i>System & Compliance</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="reportTabsContent">
+    <!-- 1. Placement Summary Tab -->
+    <div class="tab-pane fade show active" id="placement" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-navy"><i class="fa-solid fa-gauge-high me-2 text-primary"></i>Placement Key Metrics</h5>
+                    <ul class="list-group list-group-flush fs-6">
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Total Active Registered Students</span>
+                            <span class="badge bg-primary fs-6">{{ placement.total_students or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Total Placed Students (Accepted Offer)</span>
+                            <span class="badge bg-success fs-6">{{ placement.placed_students or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Global Placement Rate Percentage</span>
+                            <span class="badge bg-success fs-6">{{ placement.placement_rate_percentage or 0 }}%</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Average Stipend for Placed Students</span>
+                            <span class="badge bg-warning text-dark fs-6">${{ "%.2f"|format(placement.avg_placed_stipend or 0) }}/mo</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Total Applications Logged in Database</span>
+                            <span class="badge bg-info fs-6">{{ placement.total_applications or 0 }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-navy"><i class="fa-solid fa-chart-bar me-2 text-info"></i>Application Acceptance vs Rejection</h5>
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="reportAcceptanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Student Performance Tab -->
+    <div class="tab-pane fade" id="students" role="tabpanel">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-navy"><i class="fa-solid fa-users me-2 text-primary"></i>Student Academic & Evaluation Rankings</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Department</th>
+                                <th>GPA</th>
+                                <th>Apps Submitted</th>
+                                <th>Accepted Offers</th>
+                                <th>Avg Faculty Score</th>
+                                <th>Placement Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in student_perf %}
+                            <tr>
+                                <td class="fw-bold">{{ s.student_name }}</td>
+                                <td>{{ s.department }}</td>
+                                <td><span class="badge bg-info-subtle text-info fw-bold">{{ s.gpa }}</span></td>
+                                <td>{{ s.total_applications }}</td>
+                                <td><span class="badge bg-success">{{ s.accepted_offers }}</span></td>
+                                <td>
+                                    {% if s.avg_faculty_evaluation %}
+                                        <span class="fw-bold text-warning"><i class="fa-solid fa-star"></i> {{ s.avg_faculty_evaluation }} / 5</span>
+                                    {% else %}
+                                        <span class="text-muted small">Not Evaluated</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.placement_status == 'Placed' %}
+                                        <span class="badge bg-success py-2 px-3">Placed</span>
+                                    {% elif s.placement_status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark py-2 px-3">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary py-2 px-3">Unplaced</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="7" class="text-center text-muted py-4">No student records found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Company Statistics Tab -->
+    <div class="tab-pane fade" id="companies" role="tabpanel">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0 text-navy"><i class="fa-solid fa-building me-2 text-success"></i>Employer Partner Engagement & Ratings</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Reg. Number</th>
+                                <th>Location</th>
+                                <th>Internships Posted</th>
+                                <th>Apps Received</th>
+                                <th>Avg Student Rating</th>
+                                <th>Avg Tech Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in company_stats %}
+                            <tr>
+                                <td class="fw-bold">{{ c.company_name }}</td>
+                                <td><code>{{ c.registration_number }}</code></td>
+                                <td>{{ c.location }}</td>
+                                <td><span class="badge bg-primary">{{ c.total_internships_posted }}</span></td>
+                                <td><span class="badge bg-info">{{ c.total_applications_received }}</span></td>
+                                <td>
+                                    <span class="fw-bold text-warning"><i class="fa-solid fa-star"></i> {{ c.avg_student_rating }} / 5</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">{{ c.avg_intern_tech_rating or 'N/A' }} / 5</span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="7" class="text-center text-muted py-4">No company statistics available.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. System & Compliance Tab -->
+    <div class="tab-pane fade" id="system" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 p-4">
+                    <h5 class="fw-bold mb-3 text-navy"><i class="fa-solid fa-server me-2 text-primary"></i>System Metrics Overview</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Total Users Registered</span>
+                            <span class="badge bg-dark fs-6">{{ system_activity.total_users or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Admin Accounts</span>
+                            <span class="badge bg-primary fs-6">{{ system_activity.admin_count or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Faculty Accounts</span>
+                            <span class="badge bg-info fs-6">{{ system_activity.faculty_count or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Student Accounts</span>
+                            <span class="badge bg-success fs-6">{{ system_activity.student_count or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Verified User Accounts</span>
+                            <span class="badge bg-success fs-6">{{ system_activity.verified_users or 0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <span>Unverified User Accounts</span>
+                            <span class="badge bg-danger fs-6">{{ system_activity.unverified_users or 0 }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 rounded-3 p-4">
+                    <h5 class="fw-bold mb-3 text-navy"><i class="fa-solid fa-shield-cat me-2 text-danger"></i>Compliance Report Flags</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Violation Category</th>
+                                    <th>Target Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for flag in compliance %}
+                                <tr>
+                                    <td><span class="badge bg-danger text-wrap">{{ flag.violation_type }}</span></td>
+                                    <td class="small">{{ flag.details }}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="2" class="text-center text-muted py-3">No active compliance flags!</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Explicit tab switching handler for report tabs
+    const tabButtons = document.querySelectorAll('#reportTabs button');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            tabButtons.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#reportTabsContent .tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            this.classList.add('active');
+            const targetId = this.getAttribute('data-bs-target');
+            const targetPane = document.querySelector(targetId);
+            if (targetPane) {
+                targetPane.classList.add('show', 'active');
+            }
+        });
+    });
+
+    const ctx = document.getElementById('reportAcceptanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Total Apps', 'Pending', 'Shortlisted', 'Accepted', 'Rejected'],
+            datasets: [{
+                label: 'Application Count',
+                data: [
+                    {{ analytics.total_applications or 0 }},
+                    {{ analytics.pending_count or 0 }},
+                    {{ analytics.shortlisted_count or 0 }},
+                    {{ analytics.accepted_count or 0 }},
+                    {{ analytics.rejected_count or 0 }}
+                ],
+                backgroundColor: ['#3b82f6', '#f59e0b', '#06b6d4', '#10b981', '#ef4444']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+});
+</script>
+{% endblock %}

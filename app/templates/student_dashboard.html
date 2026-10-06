@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-user-graduate me-2 text-primary"></i>Student Portal</h2>
+        <p class="text-muted mb-0">Track your applications, interview schedule, and placement status</p>
+    </div>
+    <a href="{{ url_for('internships.list_internships') }}" class="btn btn-primary btn-lg shadow-sm"><i class="fa-solid fa-magnifying-glass me-2"></i> Browse All Internships</a>
+</div>
+
+<!-- Placement Status Header Banner -->
+<div class="card border-0 rounded-4 shadow-sm mb-4 {% if placement.placement_status == 'Placed' %}bg-success text-white{% else %}bg-white{% endif %}">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <span class="badge {% if placement.placement_status == 'Placed' %}bg-white text-success{% else %}bg-primary{% endif %} text-uppercase mb-2">Placement Status</span>
+                <h3 class="fw-bold mb-1">
+                    {% if placement.placement_status == 'Placed' %}
+                        🎉 Congratulations! You are Placed at {{ placement.placed_company }}!
+                    {% elif placement.placement_status == 'Pending' %}
+                        ⏳ Applications In Progress
+                    {% else %}
+                        🚀 Start Applying Today!
+                    {% endif %}
+                </h3>
+                <p class="mb-0 {% if placement.placement_status == 'Placed' %}text-white-50{% else %}text-muted{% endif %}">
+                    {% if placement.placement_status == 'Placed' %}
+                        Position: <strong>{{ placement.placed_title }}</strong> | Stipend: <strong>${{ "%.2f"|format(placement.placed_stipend or 0) }}/mo</strong>
+                    {% else %}
+                        Explore open internship postings across top software engineering, data science, and security domains.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="display-4 me-3">
+                {% if placement.placement_status == 'Placed' %}
+                    <i class="fa-solid fa-circle-check"></i>
+                {% else %}
+                    <i class="fa-solid fa-hourglass-half text-warning"></i>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Applications Section -->
+<div class="card shadow-sm border-0 rounded-3 mb-4" id="my-applications">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-navy"><i class="fa-solid fa-paper-plane me-2 text-primary"></i>My Submitted Applications</h5>
+        <span class="badge bg-primary rounded-pill">{{ applications|length }} Total</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Internship Title</th>
+                        <th>Company</th>
+                        <th>Stipend</th>
+                        <th>Applied On</th>
+                        <th>Resume</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="fw-bold">
+                            <a href="{{ url_for('internships.detail', internship_id=app.internship_id) }}" class="text-decoration-none">{{ app.internship_title }}</a>
+                        </td>
+                        <td>{{ app.company_name }} <br><small class="text-muted">{{ app.location }}</small></td>
+                        <td class="fw-bold">${{ "%.2f"|format(app.stipend) }}</td>
+                        <td class="small text-muted">{{ app.applied_at }}</td>
+                        <td>
+                            {% if app.resume_path %}
+                            <a href="/{{ app.resume_path }}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-file-pdf"></i> View PDF</a>
+                            {% else %}
+                            <span class="text-muted small">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-status-{{ app.application_status }} py-2 px-3 fs-6">{{ app.application_status|capitalize }}</span>
+                        </td>
+                        <td>
+                            {% if app.application_status == 'accepted' %}
+                                <a href="{{ url_for('student.submit_student_feedback', application_id=app.application_id) }}" class="btn btn-sm btn-success"><i class="fa-solid fa-star me-1"></i> Rate Experience</a>
+                            {% elif app.application_status in ['pending', 'shortlisted'] %}
+                                <form method="POST" action="{{ url_for('student.withdraw_application', application_id=app.application_id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to withdraw this application?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Withdraw</button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">You have not submitted any internship applications yet. Browse internships below!</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- My Scheduled Interviews Section -->
+<div class="card shadow-sm border-0 rounded-3 mb-4" id="my-interviews">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-0 text-navy"><i class="fa-solid fa-calendar-check me-2 text-warning"></i>My Interview Schedule</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Internship & Company</th>
+                        <th>Interviewer</th>
+                        <th>Date & Time</th>
+                        <th>Mode</th>
+                        <th>Result</th>
+                        <th>Interviewer Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for iv in interviews %}
+                    <tr>
+                        <td class="fw-bold">{{ iv.internship_title }} <br><small class="text-muted">{{ iv.company_name }}</small></td>
+                        <td>{{ iv.interviewer }}</td>
+                        <td class="fw-semibold text-primary">{{ iv.interview_datetime }}</td>
+                        <td><span class="badge bg-light text-dark text-uppercase">{{ iv.mode }}</span></td>
+                        <td>
+                            {% if iv.result == 'passed' %}<span class="badge bg-success">Passed</span>
+                            {% elif iv.result == 'failed' %}<span class="badge bg-danger">Failed</span>
+                            {% elif iv.result == 'scheduled' %}<span class="badge bg-warning text-dark">Scheduled</span>
+                            {% else %}<span class="badge bg-secondary">Cancelled</span>{% endif %}
+                        </td>
+                        <td class="small text-muted">{{ iv.comments or 'No comments yet.' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">No scheduled interviews currently.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Recommended Open Internships -->
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-navy"><i class="fa-solid fa-fire me-2 text-danger"></i>Featured Internship Opportunities</h5>
+        <a href="{{ url_for('internships.list_internships') }}" class="btn btn-sm btn-outline-primary">View All Positions</a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for rec in recommended %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border rounded-3 p-3 shadow-sm hover-shadow">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary-subtle text-primary">{{ rec.domain }}</span>
+                        <span class="fw-bold text-success">${{ "%.0f"|format(rec.stipend) }}/mo</span>
+                    </div>
+                    <h6 class="fw-bold mb-1">{{ rec.title }}</h6>
+                    <p class="text-muted small mb-2"><i class="fa-solid fa-building me-1"></i>{{ rec.company_name }} &bull; {{ rec.location }}</p>
+                    <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                        <span class="small text-muted"><i class="fa-solid fa-clock me-1"></i>{{ rec.duration_weeks }} weeks</span>
+                        <a href="{{ url_for('internships.detail', internship_id=rec.internship_id) }}" class="btn btn-sm btn-outline-primary fw-bold">Apply Now</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

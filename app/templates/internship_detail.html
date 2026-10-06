@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ internship.title }} - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('internships.list_internships') }}">Internships</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ internship.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start border-bottom pb-4 mb-4">
+                <div>
+                    <span class="badge bg-primary py-2 px-3 rounded-pill text-uppercase mb-2">{{ internship.domain }}</span>
+                    <h2 class="fw-bold text-navy mb-1">{{ internship.title }}</h2>
+                    <h5 class="text-secondary fw-normal">
+                        <i class="fa-solid fa-building me-1"></i> {{ internship.company_name }} &bull;
+                        <i class="fa-solid fa-location-dot me-1"></i> {{ internship.location }}
+                    </h5>
+                </div>
+                <div class="text-md-end mt-3 mt-md-0">
+                    <h3 class="fw-bold text-success mb-1">${{ "%.2f"|format(internship.stipend) }} / mo</h3>
+                    <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-clock me-1"></i> {{ internship.duration_weeks }} Weeks Duration</span>
+                </div>
+            </div>
+
+            <!-- Position Overview Grid -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted text-uppercase d-block mb-1">Start Date</small>
+                        <strong class="text-dark">{{ internship.start_date }}</strong>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted text-uppercase d-block mb-1">End Date</small>
+                        <strong class="text-dark">{{ internship.end_date }}</strong>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-warning-subtle rounded-3 border border-warning">
+                        <small class="text-warning-emphasis text-uppercase d-block mb-1">Apply Deadline</small>
+                        <strong class="text-danger">{{ internship.application_deadline }}</strong>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted text-uppercase d-block mb-1">Posted By</small>
+                        <strong class="text-dark">{{ internship.faculty_name }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-align-left me-2 text-primary"></i>Position Description & Responsibilities</h5>
+            <div class="text-secondary leading-relaxed mb-4" style="white-space: pre-line; font-size: 1.05rem;">
+                {{ internship.description }}
+            </div>
+
+            <!-- Application Status or Action Bar -->
+            <div class="card bg-light border-0 rounded-3 p-4 mt-4 text-center">
+                {% if current_role == 'student' %}
+                    {% if has_applied %}
+                        <div class="alert alert-success mb-0 d-inline-block px-4 py-3 shadow-sm">
+                            <h5 class="fw-bold mb-1"><i class="fa-solid fa-circle-check me-2"></i>Application Already Submitted</h5>
+                            <p class="mb-0 small">Current Status: <span class="badge badge-status-{{ application.status }} fs-6">{{ application.status|capitalize }}</span></p>
+                        </div>
+                    {% else %}
+                        <h4 class="fw-bold mb-2">Ready to Apply for this Position?</h4>
+                        <p class="text-muted mb-3">Ensure your PDF resume is ready and click below to submit your application.</p>
+                        <div>
+                            <a href="{{ url_for('student.apply_internship', internship_id=internship.internship_id) }}" class="btn btn-primary btn-lg px-5 py-2 fw-bold shadow">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Submit Application Now
+                            </a>
+                        </div>
+                    {% endif %}
+                {% elif current_role in ['faculty', 'admin'] %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('faculty.applications_list') }}?internship={{ internship.internship_id }}" class="btn btn-primary px-4 fw-bold">
+                            <i class="fa-solid fa-users-viewfinder me-2"></i> View Applicants for this Position
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="mb-2">Log in as a student to submit an application for this position.</p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary px-4 fw-bold">Sign In to Apply</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

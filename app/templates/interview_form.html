@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Schedule Interview - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-warning text-dark d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-calendar-plus fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Schedule Candidate Interview</h3>
+                <p class="text-muted small">Candidate: <strong>{{ app_details.student_name }}</strong> for <strong>{{ app_details.internship_title }}</strong></p>
+            </div>
+
+            <div class="alert alert-info border-0 shadow-sm mb-4">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> <strong>Trigger Validation Notice:</strong>
+                Interview time must be at least 24 hours in the future and strictly before the application deadline (<code>{{ app_details.application_deadline or 'N/A' }}</code>).
+            </div>
+
+            <form method="POST" action="{{ url_for('faculty.schedule_interview', application_id=app_details.application_id) }}">
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="interviewer_name" class="form-label fw-semibold">Interviewer Name</label>
+                        <input type="text" class="form-control" id="interviewer_name" name="interviewer_name" required value="{{ current_name }}">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="interviewer_email" class="form-label fw-semibold">Interviewer Email</label>
+                        <input type="email" class="form-control" id="interviewer_email" name="interviewer_email" required value="{{ current_email }}">
+                    </div>
+
+                    <div class="col-md-7 mb-3">
+                        <label for="interview_datetime" class="form-label fw-semibold">Interview Date & Time (>= +24 Hours)</label>
+                        <input type="datetime-local" class="form-control" id="interview_datetime" name="interview_datetime" required>
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label for="mode" class="form-label fw-semibold">Interview Mode</label>
+                        <select class="form-select" id="mode" name="mode" required>
+                            <option value="online" selected>Online (Video Call)</option>
+                            <option value="in_person">In-Person (Campus)</option>
+                            <option value="telephonic">Telephonic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-warning btn-lg py-2 fw-bold text-dark shadow-sm">
+                        <i class="fa-solid fa-clock-check me-2"></i> Schedule Interview
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

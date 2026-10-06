@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Internships - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-briefcase me-2 text-primary"></i>Explore Internship Opportunities</h2>
+        <p class="text-muted">Find and filter open internship positions by domain, company, location, and stipend.</p>
+    </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body p-4 bg-light rounded-4">
+        <form method="GET" action="{{ url_for('internships.list_internships') }}" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small">Keyword Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" class="form-control" name="q" value="{{ filters.q or '' }}" placeholder="Title, skills, domain...">
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Domain</label>
+                <select class="form-select" name="domain">
+                    <option value="">All Domains</option>
+                    {% for d in domains %}
+                    <option value="{{ d.domain }}" {% if filters.domain == d.domain %}selected{% endif %}>{{ d.domain }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Company</label>
+                <input type="text" class="form-control" name="company" value="{{ filters.company or '' }}" placeholder="Company name...">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Location</label>
+                <input type="text" class="form-control" name="location" value="{{ filters.location or '' }}" placeholder="City, State...">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small">Min Stipend ($)</label>
+                <input type="number" step="100" class="form-control" name="stipend_min" value="{{ filters.stipend_min or '' }}" placeholder="e.g. 2000">
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Internships Grid -->
+<div class="row g-4">
+    {% for i in internships %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4 p-3 metric-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge bg-primary-subtle text-primary py-2 px-3 rounded-pill fw-semibold">{{ i.domain }}</span>
+                <span class="badge bg-success py-2 px-3 rounded-pill fw-bold">${{ "%.0f"|format(i.stipend) }}/mo</span>
+            </div>
+
+            <h5 class="fw-bold text-navy mt-2 mb-1">{{ i.title }}</h5>
+            <p class="text-muted small mb-3">
+                <i class="fa-solid fa-building me-1 text-secondary"></i> <strong>{{ i.company_name }}</strong>
+                <br>
+                <i class="fa-solid fa-location-dot me-1 text-secondary"></i> {{ i.location }}
+            </p>
+
+            <p class="text-secondary small mb-3 text-truncate-3">
+                {{ i.description|truncate(110) }}
+            </p>
+
+            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <div class="small text-muted">
+                    <div><i class="fa-solid fa-calendar me-1"></i> {{ i.duration_weeks }} Weeks</div>
+                    <div><i class="fa-solid fa-hourglass-end me-1"></i> {{ (i.application_deadline|string)[:10] }}</div>
+                </div>
+                <a href="{{ url_for('internships.detail', internship_id=i.internship_id) }}" class="btn btn-outline-primary fw-bold">View Position</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted fw-bold">No Internships Found</h4>
+        <p class="text-muted">Try clearing search filters or changing your criteria.</p>
+        <a href="{{ url_for('internships.list_internships') }}" class="btn btn-outline-primary">Reset Filters</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+/* Custom Styling for College Internship Management System */
+:root {
+    --primary-color: #1e3a8a;
+    --secondary-color: #3b82f6;
+    --accent-color: #06b6d4;
+    --dark-bg: #0f172a;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+body {
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-custom {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.metric-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.badge-status-pending { background-color: #f59e0b; color: white; }
+.badge-status-shortlisted { background-color: #3b82f6; color: white; }
+.badge-status-accepted { background-color: #10b981; color: white; }
+.badge-status-rejected { background-color: #ef4444; color: white; }
+.badge-status-withdrawn { background-color: #6b7280; color: white; }
+
+.table-custom {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.table-custom th {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+}
+
+.demo-credentials-box {
+    background-color: #e0f2fe;
+    border-left: 4px solid #0284c7;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+footer {
+    margin-top: auto;
+    background-color: #0f172a;
+    color: #94a3b8;
+    padding: 20px 0;
+}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}System Feedback & Bug Reporting{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-secondary text-white d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-comment-dots fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Platform Feedback & Suggestions</h3>
+                <p class="text-muted small">Submit feature requests, report bugs, or recommend platform improvements</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('main.submit_system_feedback') }}">
+                <div class="mb-3">
+                    <label for="type" class="form-label fw-semibold">Feedback Type</label>
+                    <select class="form-select" id="type" name="type" required>
+                        <option value="feature" selected>Feature Request</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="improvement">Improvement Suggestion</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="form-label fw-semibold">Detailed Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Describe the feature request or bug details in full..."></textarea>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-secondary btn-lg py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Post New Internship - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-folder-plus fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Post New Internship Position</h3>
+                <p class="text-muted small">Fill out position requirements, duration, stipend, and application deadline</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('internships.create_internship') }}">
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="company_id" class="form-label fw-semibold">Company Partner</label>
+                        <select class="form-select" id="company_id" name="company_id" required>
+                            <option value="" selected disabled>Select Employer Company...</option>
+                            {% for c in companies %}
+                            <option value="{{ c.company_id }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="domain" class="form-label fw-semibold">Domain / Specialization</label>
+                        <select class="form-select" id="domain" name="domain" required>
+                            <option value="" selected disabled>Select Domain...</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                            <option value="Cloud & DevOps">Cloud & DevOps</option>
+                            <option value="Data Science & AI">Data Science & AI</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="Cyber Security">Cyber Security</option>
+                            <option value="Mobile Development">Mobile Development</option>
+                            <option value="UI/UX Design">UI/UX Design</option>
+                            <option value="Embedded Systems">Embedded Systems</option>
+                            <option value="Fintech">Fintech</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="title" class="form-label fw-semibold">Position Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required placeholder="e.g. Full-Stack Web Development Intern">
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="description" class="form-label fw-semibold">Description & Responsibilities</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Describe key responsibilities, required skills, tools, and learning outcomes..."></textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="duration_weeks" class="form-label fw-semibold">Duration (Weeks: 4 to 26)</label>
+                        <input type="number" min="4" max="26" class="form-control" id="duration_weeks" name="duration_weeks" required value="12">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="stipend" class="form-label fw-semibold">Monthly Stipend ($)</label>
+                        <input type="number" step="50" min="0" class="form-control" id="stipend" name="stipend" required value="2500">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="end_date" class="form-label fw-semibold">End Date</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="application_deadline" class="form-label fw-semibold">Application Deadline</label>
+                        <input type="datetime-local" class="form-control" id="application_deadline" name="application_deadline" required>
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Submit Posting for Approval
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

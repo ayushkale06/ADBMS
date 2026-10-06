@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - College Internship Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-3">
+                        <i class="fa-solid fa-user-lock fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold text-navy">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to your College Internship account</p>
+                </div>
+
+                <div class="demo-credentials-box mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-primary small"><i class="fa-solid fa-key me-1"></i> Quick Demo Login Fill:</span>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <button type="button" class="btn btn-sm btn-outline-primary flex-fill me-1" onclick="fillCredentials('admin@college.edu', 'Admin@123')">Admin</button>
+                        <button type="button" class="btn btn-sm btn-outline-success flex-fill me-1" onclick="fillCredentials('dr.smith@college.edu', 'Faculty@123')">Faculty</button>
+                        <button type="button" class="btn btn-sm btn-outline-info flex-fill" onclick="fillCredentials('alex.turner@student.edu', 'Student@123')">Student</button>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" required placeholder="name@college.edu">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg py-2 fw-bold shadow-sm">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">Are you a new student? <a href="{{ url_for('auth.register') }}" class="text-primary fw-bold text-decoration-none">Register Here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+}
+</script>
+{% endblock %}

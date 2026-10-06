@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Register New Company - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="bg-primary text-white d-inline-flex p-3 rounded-circle mb-3">
+                    <i class="fa-solid fa-building-circle-check fa-2x"></i>
+                </div>
+                <h3 class="fw-bold">Register Employer Company</h3>
+                <p class="text-muted small">Add new partner organization to system</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin.create_company') }}">
+                <div class="row g-3">
+                    <div class="col-md-7 mb-3">
+                        <label for="name" class="form-label fw-semibold">Company Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required placeholder="e.g. Apex Global Tech Solutions">
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label for="registration_number" class="form-label fw-semibold">Reg. Number (UNIQUE)</label>
+                        <input type="text" class="form-control" id="registration_number" name="registration_number" required placeholder="REG-AG-90111">
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="location" class="form-label fw-semibold">Location / Headquarters</label>
+                        <input type="text" class="form-control" id="location" name="location" required placeholder="City, State, Country">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="contact_person" class="form-label fw-semibold">Contact Person</label>
+                        <input type="text" class="form-control" id="contact_person" name="contact_person" required placeholder="Contact Name">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="contact_email" class="form-label fw-semibold">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email" required placeholder="hr@company.com">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="contact_phone" class="form-label fw-semibold">Contact Phone</label>
+                        <input type="text" class="form-control" id="contact_phone" name="contact_phone" required placeholder="+15550189999">
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg py-2 fw-bold shadow-sm">
+                        <i class="fa-solid fa-plus-circle me-2"></i> Register Company
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
