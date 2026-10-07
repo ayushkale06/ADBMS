@@ -63,11 +63,11 @@ INSERT INTO users (user_id, email, password_hash, role, is_verified, is_active) 
 -- ----------------------------------------------------------------------------
 -- 2. FACULTY
 -- ----------------------------------------------------------------------------
-INSERT INTO faculty (faculty_id, user_id, name, department, phone) VALUES
-(1, 2, 'Dr. Robert Smith', 'Computer Science & Engineering', '+15550100002'),
-(2, 3, 'Prof. Sarah Johnson', 'Information Technology', '+15550100003'),
-(3, 4, 'Dr. Michael Williams', 'Data Science & AI', '+15550100004'),
-(4, 5, 'Prof. Amanda Davis', 'Electronics & Communication', '+15550100005');
+INSERT INTO faculty (faculty_id, user_id, name, department, phone, is_active) VALUES
+(1, 2, 'Dr. Robert Smith', 'Computer Science & Engineering', '+15550100002', 1),
+(2, 3, 'Prof. Sarah Johnson', 'Information Technology', '+15550100003', 1),
+(3, 4, 'Dr. Michael Williams', 'Data Science & AI', '+15550100004', 1),
+(4, 5, 'Prof. Amanda Davis', 'Electronics & Communication', '+15550100005', 1);
 
 -- ----------------------------------------------------------------------------
 -- 3. STUDENTS
@@ -93,15 +93,15 @@ INSERT INTO students (student_id, user_id, name, phone, department, gpa, resume_
 -- ----------------------------------------------------------------------------
 -- 4. COMPANIES
 -- ----------------------------------------------------------------------------
-INSERT INTO companies (company_id, name, registration_number, location, contact_person, contact_email, contact_phone, is_archived) VALUES
-(1, 'TechCorp Systems Inc.', 'REG-TC-10091', 'San Francisco, CA', 'Sarah Jenkins', 'hr@techcorp.com', '+15550180001', 0),
-(2, 'CloudSys Technologies', 'REG-CS-20482', 'Seattle, WA', 'David Miller', 'careers@cloudsys.com', '+15550180002', 0),
-(3, 'DataSphere Analytics', 'REG-DS-30193', 'New York, NY', 'Elena Rostova', 'talent@datasphere.io', '+15550180003', 0),
-(4, 'CyberShield Security', 'REG-CY-40824', 'Austin, TX', 'Michael Chang', 'jobs@cybershield.net', '+15550180004', 0),
-(5, 'InnovateTech Solutions', 'REG-IT-50115', 'Boston, MA', 'Rachel Green', 'recruiting@innovatetech.com', '+15550180005', 0),
-(6, 'BioHealth Informatics', 'REG-BH-60296', 'San Diego, CA', 'Dr. James Wilson', 'careers@biohealth.org', '+15550180006', 0),
-(7, 'AutoDrive Robotics', 'REG-AD-70337', 'Detroit, MI', 'Karen Vance', 'hr@autodrive.com', '+15550180007', 0),
-(8, 'FinEdge Solutions', 'REG-FE-80418', 'Chicago, IL', 'Thomas Wright', 'jobs@finedge.com', '+15550180008', 0);
+INSERT INTO companies (company_id, name, registration_number, location, contact_person, contact_email, contact_phone, created_by, is_archived) VALUES
+(1, 'TechCorp Systems Inc.', 'REG-TC-10091', 'San Francisco, CA', 'Sarah Jenkins', 'hr@techcorp.com', '+15550180001', 1, 0),
+(2, 'CloudSys Technologies', 'REG-CS-20482', 'Seattle, WA', 'David Miller', 'careers@cloudsys.com', '+15550180002', 2, 0),
+(3, 'DataSphere Analytics', 'REG-DS-30193', 'New York, NY', 'Elena Rostova', 'talent@datasphere.io', '+15550180003', 3, 0),
+(4, 'CyberShield Security', 'REG-CY-40824', 'Austin, TX', 'Michael Chang', 'jobs@cybershield.net', '+15550180004', 1, 0),
+(5, 'InnovateTech Solutions', 'REG-IT-50115', 'Boston, MA', 'Rachel Green', 'recruiting@innovatetech.com', '+15550180005', 4, 0),
+(6, 'BioHealth Informatics', 'REG-BH-60296', 'San Diego, CA', 'Dr. James Wilson', 'careers@biohealth.org', '+15550180006', 3, 0),
+(7, 'AutoDrive Robotics', 'REG-AD-70337', 'Detroit, MI', 'Karen Vance', 'hr@autodrive.com', '+15550180007', 4, 0),
+(8, 'FinEdge Solutions', 'REG-FE-80418', 'Chicago, IL', 'Thomas Wright', 'jobs@finedge.com', '+15550180008', 2, 0);
 
 -- ----------------------------------------------------------------------------
 -- 5. INTERNSHIPS
@@ -195,8 +195,8 @@ INSERT INTO interviews (interview_id, application_id, interviewer_name, intervie
 (8, 10, 'David Miller', 'careers@cloudsys.com', '2026-10-19 10:00:00', 'online', 'scheduled', 'Linux shell scripting and system telemetry test.'),
 (9, 11, 'Karen Vance', 'hr@autodrive.com', '2026-10-10 11:00:00', 'in_person', 'passed', 'Excellent microcontroller architecture knowledge and C++ test score.'),
 (10, 12, 'Karen Vance', 'hr@autodrive.com', '2026-10-17 14:30:00', 'online', 'scheduled', 'Computer vision and lane tracking model evaluation.'),
-(11, 13, 'David Miller', 'careers@cloudsys.com', '2026-10-08 10:00:00', 'online', 'failed', 'Candidate lacked sufficient hands-on experience with Kubernetes orchestration.'),
-(12, 15, 'Elena Rostova', 'talent@datasphere.io', '2026-10-09 14:00:00', 'online', 'passed', 'Top candidate with strong research foundation and machine learning background.'),
+(11, 13, 'David Miller', 'careers@cloudsys.com', '2026-10-16 10:00:00', 'online', 'failed', 'Candidate lacked sufficient hands-on experience with Kubernetes orchestration.'),
+(12, 15, 'Elena Rostova', 'talent@datasphere.io', '2026-10-17 14:00:00', 'online', 'passed', 'Top candidate with strong research foundation and machine learning background.'),
 (13, 16, 'Dr. James Wilson', 'careers@biohealth.org', '2026-10-21 11:00:00', 'online', 'scheduled', 'Bioinformatics pipeline and genomic data analysis interview.'),
 (14, 17, 'Michael Chang', 'jobs@cybershield.net', '2026-10-22 15:00:00', 'online', 'scheduled', 'Network threat analysis and Wireshark log assessment.'),
 (15, 19, 'Karen Vance', 'hr@autodrive.com', '2026-10-20 10:30:00', 'in_person', 'scheduled', 'Hardware lab test and embedded system debug challenge.'),

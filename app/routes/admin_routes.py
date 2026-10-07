@@ -23,12 +23,27 @@ def manage_users():
 @role_required('admin')
 def toggle_user_status(user_id):
     try:
-        user = execute_query("SELECT is_active FROM users WHERE user_id = %s", (user_id,), fetchone=True)
+        user = execute_query("SELECT role, is_active FROM users WHERE user_id = %s", (user_id,), fetchone=True)
         if user:
-            new_status = 0 if user['is_active'] else 1
-            execute_query("UPDATE users SET is_active = %s WHERE user_id = %s", (new_status, user_id))
-            execute_query("UPDATE students SET is_active = %s WHERE user_id = %s", (new_status, user_id))
-            flash(f"User #{user_id} status updated.", "info")
+            if user['role'] == 'student':
+                st = execute_query("SELECT student_id FROM students WHERE user_id = %s", (user_id,), fetchone=True)
+                if st:
+                    if user['is_active']:
+                        execute_query("CALL sp_deactivate_student(%s)", (st['student_id'],))
+                    else:
+                        execute_query("CALL sp_activate_student(%s)", (st['student_id'],))
+            elif user['role'] == 'faculty':
+                fc = execute_query("SELECT faculty_id FROM faculty WHERE user_id = %s", (user_id,), fetchone=True)
+                if fc:
+                    if user['is_active']:
+                        execute_query("CALL sp_deactivate_faculty(%s)", (fc['faculty_id'],))
+                    else:
+                        execute_query("CALL sp_activate_faculty(%s)", (fc['faculty_id'],))
+            else:
+                new_status = 0 if user['is_active'] else 1
+                execute_query("UPDATE users SET is_active = %s WHERE user_id = %s", (new_status, user_id))
+
+            flash(f"User #{user_id} status toggled successfully.", "info")
     except Exception as e:
         flash(f"User toggle error: {str(e)}", "danger")
     return redirect(url_for('admin.manage_users'))
@@ -67,6 +82,23 @@ def reject_internship(internship_id):
         flash(f"Rejection error: {str(e)}", "danger")
     return redirect(request.referrer or url_for('main.dashboard'))
 
+@admin_bp.route('/admin/internships/<int:internship_id>/toggle-archive', methods=['POST'])
+@login_required
+@role_required('admin', 'faculty')
+def toggle_internship_archive(internship_id):
+    try:
+        intern = execute_query("SELECT status FROM internships WHERE internship_id = %s", (internship_id,), fetchone=True)
+        if intern:
+            if intern['status'] == 'archived':
+                execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                flash(f"Internship #{internship_id} restored to open status.", "success")
+            else:
+                execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                flash(f"Internship #{internship_id} archived (soft deleted).", "info")
+    except Exception as e:
+        flash(f"Archive toggle error: {str(e)}", "danger")
+    return redirect(request.referrer or url_for('main.dashboard'))
+
 @admin_bp.route('/admin/companies/new', methods=['GET', 'POST'])
 @login_required
 @role_required('admin', 'faculty')
@@ -79,13 +111,15 @@ def create_company():
         contact_email = request.form.get('contact_email', '').strip()
         contact_phone = request.form.get('contact_phone', '').strip()
 
+        created_by = session.get('role_id') if session.get('role') == 'faculty' else None
+
         try:
             execute_query(
-                "CALL sp_create_company(%s, %s, %s, %s, %s, %s, @out_id)",
-                (name, reg_num, location, contact_person, contact_email, contact_phone)
+                "CALL sp_create_company(%s, %s, %s, %s, %s, %s, %s, @out_id)",
+                (name, reg_num, location, contact_person, contact_email, contact_phone, created_by)
             )
             if session.get('role') == 'faculty':
-                flash(f"Company '{name}' submitted successfully for Admin approval!", "success")
+                flash(f"Company '{name}' submitted successfully!", "success")
             else:
                 flash(f"Company '{name}' registered successfully!", "success")
             return redirect(url_for('main.dashboard'))
@@ -95,15 +129,34 @@ def create_company():
     return render_template('company_form.html')
 
 @admin_bp.route('/admin/companies/<int:company_id>/archive', methods=['POST'])
+@admin_bp.route('/admin/companies/<int:company_id>/toggle-archive', methods=['POST'])
 @login_required
-@role_required('admin')
+@role_required('admin', 'faculty')
 def archive_company(company_id):
     try:
-        execute_query("CALL sp_archive_company(%s)", (company_id,))
-        flash(f"Company #{company_id} archived successfully.", "info")
+        comp = execute_query("SELECT is_archived FROM companies WHERE company_id = %s", (company_id,), fetchone=True)
+        if comp:
+            if comp['is_archived']:
+                execute_query("CALL sp_restore_company(%s)", (company_id,))
+                flash(f"Company #{company_id} restored to active status.", "success")
+            else:
+                execute_query("CALL sp_archive_company(%s)", (company_id,))
+                flash(f"Company #{company_id} archived (soft deleted).", "info")
     except Exception as e:
-        flash(f"Archive error: {str(e)}", "danger")
-    return redirect(url_for('main.dashboard'))
+        flash(f"Archive toggle error: {str(e)}", "danger")
+    return redirect(request.referrer or url_for('main.dashboard'))
+
+@admin_bp.route('/companies/<int:company_id>/applicants')
+@login_required
+@role_required('admin', 'faculty')
+def company_applicants(company_id):
+    company = execute_query("SELECT * FROM companies WHERE company_id = %s", (company_id,), fetchone=True)
+    if not company:
+        flash("Company not found.", "warning")
+        return redirect(url_for('main.dashboard'))
+
+    applicants = execute_query("SELECT * FROM vw_company_applicant_details WHERE company_id = %s ORDER BY applied_at DESC", (company_id,), fetchall=True) or []
+    return render_template('company_applicants.html', company=company, applicants=applicants)
 
 @admin_bp.route('/reports')
 @login_required

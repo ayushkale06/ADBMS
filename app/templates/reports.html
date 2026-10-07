@@ -138,10 +138,11 @@
                                 <th>Company Name</th>
                                 <th>Reg. Number</th>
                                 <th>Location</th>
-                                <th>Internships Posted</th>
-                                <th>Apps Received</th>
-                                <th>Avg Student Rating</th>
-                                <th>Avg Tech Performance</th>
+                                <th>Added By Faculty</th>
+                                <th>Internships</th>
+                                <th>Applied Students</th>
+                                <th>Avg Rating</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,17 +151,35 @@
                                 <td class="fw-bold">{{ c.company_name }}</td>
                                 <td><code>{{ c.registration_number }}</code></td>
                                 <td>{{ c.location }}</td>
-                                <td><span class="badge bg-primary">{{ c.total_internships_posted }}</span></td>
-                                <td><span class="badge bg-info">{{ c.total_applications_received }}</span></td>
+                                <td>
+                                    {% if c.created_by_faculty_name %}
+                                        <span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-chalkboard-user me-1"></i> {{ c.created_by_faculty_name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary fw-bold"><i class="fa-solid fa-user-shield me-1"></i> System Admin</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="badge bg-primary fs-6">{{ c.total_internships_posted }}</span></td>
+                                <td><span class="badge bg-info fs-6">{{ c.total_applications_received }}</span></td>
                                 <td>
                                     <span class="fw-bold text-warning"><i class="fa-solid fa-star"></i> {{ c.avg_student_rating }} / 5</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-success">{{ c.avg_intern_tech_rating or 'N/A' }} / 5</span>
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <a href="{{ url_for('admin.company_applicants', company_id=c.company_id) }}" class="btn btn-sm btn-outline-primary fw-bold">
+                                            <i class="fa-solid fa-users me-1"></i> View Students ({{ c.total_applications_received }})
+                                        </a>
+                                        <form method="POST" action="{{ url_for('admin.archive_company', company_id=c.company_id) }}" class="d-inline">
+                                            {% if c.is_archived %}
+                                                <button type="submit" class="btn btn-sm btn-outline-success fw-bold">Restore</button>
+                                            {% else %}
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Archive</button>
+                                            {% endif %}
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% else %}
-                            <tr><td colspan="7" class="text-center text-muted py-4">No company statistics available.</td></tr>
+                            <tr><td colspan="8" class="text-center text-muted py-4">No company statistics available.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

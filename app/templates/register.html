@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Student Registration - College Internship Portal{% endblock %}
+{% block title %}Account Registration - College Internship Portal{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center my-4">
@@ -11,20 +11,38 @@
                     <div class="bg-info text-white d-inline-flex p-3 rounded-circle mb-3">
                         <i class="fa-solid fa-user-plus fa-2x"></i>
                     </div>
-                    <h3 class="fw-bold">Student Registration</h3>
-                    <p class="text-muted small">Create your student account to apply for top internships</p>
+                    <h3 class="fw-bold">User Registration</h3>
+                    <p class="text-muted small">Register as a Student or Faculty member to access the portal</p>
                 </div>
 
                 <form method="POST" action="{{ url_for('auth.register') }}">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">I am registering as a:</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check form-check-inline card p-3 flex-fill text-center border shadow-sm">
+                                <input class="form-check-input me-2" type="radio" name="role" id="roleStudent" value="student" checked onchange="toggleRoleFields()">
+                                <label class="form-check-label fw-bold text-primary" for="roleStudent">
+                                    <i class="fa-solid fa-user-graduate me-1"></i> Student
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline card p-3 flex-fill text-center border shadow-sm">
+                                <input class="form-check-input me-2" type="radio" name="role" id="roleFaculty" value="faculty" onchange="toggleRoleFields()">
+                                <label class="form-check-label fw-bold text-success" for="roleFaculty">
+                                    <i class="fa-solid fa-chalkboard-user me-1"></i> Faculty Member
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-3">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label fw-semibold">Full Name</label>
-                            <input type="text" class="form-control" id="name" name="name" required placeholder="e.g. John Doe">
+                            <input type="text" class="form-control" id="name" name="name" required placeholder="e.g. Dr. John Smith or Jane Doe">
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label fw-semibold">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required placeholder="john.doe@student.edu">
+                            <input type="email" class="form-control" id="email" name="email" required placeholder="name@college.edu">
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -37,12 +55,12 @@
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" required placeholder="Re-enter password">
                         </div>
 
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label fw-semibold">Phone Number</label>
                             <input type="text" class="form-control" id="phone" name="phone" required placeholder="+15550190099">
                         </div>
 
-                        <div class="col-md-5 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="department" class="form-label fw-semibold">Department</label>
                             <select class="form-select" id="department" name="department" required>
                                 <option value="" selected disabled>Select Department...</option>
@@ -53,9 +71,9 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3 mb-3">
+                        <div class="col-md-6 mb-3" id="gpaContainer">
                             <label for="gpa" class="form-label fw-semibold">GPA (0.00 - 4.00)</label>
-                            <input type="number" step="0.01" min="0.0" max="4.0" class="form-control" id="gpa" name="gpa" required placeholder="3.75">
+                            <input type="number" step="0.01" min="0.0" max="4.0" class="form-control" id="gpa" name="gpa" placeholder="3.75">
                         </div>
                     </div>
 
@@ -73,4 +91,20 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleRoleFields() {
+    const isFaculty = document.getElementById('roleFaculty').checked;
+    const gpaContainer = document.getElementById('gpaContainer');
+    const gpaInput = document.getElementById('gpa');
+    if (isFaculty) {
+        gpaContainer.style.display = 'none';
+        gpaInput.removeAttribute('required');
+    } else {
+        gpaContainer.style.display = 'block';
+        gpaInput.setAttribute('required', 'required');
+    }
+}
+document.addEventListener('DOMContentLoaded', toggleRoleFields);
+</script>
 {% endblock %}

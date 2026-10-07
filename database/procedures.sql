@@ -163,8 +163,120 @@ BEGIN
 END$$
 
 -- ----------------------------------------------------------------------------
+-- Procedure 2b: sp_activate_student (Restore / Activate)
+-- Activates student record and corresponding user account.
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_activate_student$$
+CREATE PROCEDURE sp_activate_student(
+    IN p_student_id INT
+)
+BEGIN
+    DECLARE v_user_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    SELECT user_id INTO v_user_id FROM students WHERE student_id = p_student_id;
+
+    UPDATE students SET is_active = 1 WHERE student_id = p_student_id;
+    UPDATE users SET is_active = 1 WHERE user_id = v_user_id;
+
+    COMMIT;
+END$$
+
+-- ----------------------------------------------------------------------------
+-- Procedure 2c: sp_register_faculty
+-- Atomic transaction creating user account and faculty profile.
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_register_faculty$$
+CREATE PROCEDURE sp_register_faculty(
+    IN p_email VARCHAR(255),
+    IN p_password_hash VARCHAR(255),
+    IN p_name VARCHAR(100),
+    IN p_department VARCHAR(100),
+    IN p_phone VARCHAR(20),
+    OUT p_faculty_id INT
+)
+BEGIN
+    DECLARE v_new_user_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    INSERT INTO users (email, password_hash, role, is_verified, is_active)
+    VALUES (p_email, p_password_hash, 'faculty', 1, 1);
+
+    SET v_new_user_id = LAST_INSERT_ID();
+
+    INSERT INTO faculty (user_id, name, department, phone, is_active)
+    VALUES (v_new_user_id, p_name, p_department, p_phone, 1);
+
+    SET p_faculty_id = LAST_INSERT_ID();
+
+    COMMIT;
+END$$
+
+-- ----------------------------------------------------------------------------
+-- Procedure 2d: sp_deactivate_faculty (Soft Delete)
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_deactivate_faculty$$
+CREATE PROCEDURE sp_deactivate_faculty(
+    IN p_faculty_id INT
+)
+BEGIN
+    DECLARE v_user_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    SELECT user_id INTO v_user_id FROM faculty WHERE faculty_id = p_faculty_id;
+
+    UPDATE faculty SET is_active = 0 WHERE faculty_id = p_faculty_id;
+    UPDATE users SET is_active = 0 WHERE user_id = v_user_id;
+
+    COMMIT;
+END$$
+
+-- ----------------------------------------------------------------------------
+-- Procedure 2e: sp_activate_faculty (Restore)
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_activate_faculty$$
+CREATE PROCEDURE sp_activate_faculty(
+    IN p_faculty_id INT
+)
+BEGIN
+    DECLARE v_user_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    SELECT user_id INTO v_user_id FROM faculty WHERE faculty_id = p_faculty_id;
+
+    UPDATE faculty SET is_active = 1 WHERE faculty_id = p_faculty_id;
+    UPDATE users SET is_active = 1 WHERE user_id = v_user_id;
+
+    COMMIT;
+END$$
+
+-- ----------------------------------------------------------------------------
 -- Procedure 3: sp_create_company
--- Inserts a new employer partner company.
+-- Inserts a new employer partner company with optional created_by faculty.
 -- ----------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_create_company$$
 CREATE PROCEDURE sp_create_company(
@@ -174,6 +286,7 @@ CREATE PROCEDURE sp_create_company(
     IN p_contact_person VARCHAR(100),
     IN p_contact_email VARCHAR(255),
     IN p_contact_phone VARCHAR(20),
+    IN p_created_by INT,
     OUT p_company_id INT
 )
 BEGIN
@@ -185,8 +298,8 @@ BEGIN
 
     START TRANSACTION;
 
-    INSERT INTO companies (name, registration_number, location, contact_person, contact_email, contact_phone, is_archived)
-    VALUES (p_name, p_registration_number, p_location, p_contact_person, p_contact_email, p_contact_phone, 0);
+    INSERT INTO companies (name, registration_number, location, contact_person, contact_email, contact_phone, created_by, is_archived)
+    VALUES (p_name, p_registration_number, p_location, p_contact_person, p_contact_email, p_contact_phone, p_created_by, 0);
 
     SET p_company_id = LAST_INSERT_ID();
 
@@ -203,6 +316,18 @@ CREATE PROCEDURE sp_archive_company(
 )
 BEGIN
     UPDATE companies SET is_archived = 1 WHERE company_id = p_company_id;
+END$$
+
+-- ----------------------------------------------------------------------------
+-- Procedure 4b: sp_restore_company
+-- Restores an archived company.
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_restore_company$$
+CREATE PROCEDURE sp_restore_company(
+    IN p_company_id INT
+)
+BEGIN
+    UPDATE companies SET is_archived = 0 WHERE company_id = p_company_id;
 END$$
 
 -- ----------------------------------------------------------------------------

@@ -63,16 +63,18 @@ CREATE TABLE faculty (
     name VARCHAR(100) NOT NULL,
     department VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_faculty_users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT chk_faculty_phone CHECK (phone REGEXP '^\\+?[0-9]{10,15}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_faculty_dept ON faculty(department);
+CREATE INDEX idx_faculty_active ON faculty(is_active);
 
 -- ----------------------------------------------------------------------------
 -- Table 4: companies
--- Employer partner details. Archiving controlled by is_archived.
+-- Employer partner details. Archiving controlled by is_archived. Created by optional faculty.
 -- ----------------------------------------------------------------------------
 CREATE TABLE companies (
     company_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -82,8 +84,10 @@ CREATE TABLE companies (
     contact_person VARCHAR(100) NOT NULL,
     contact_email VARCHAR(255) NOT NULL,
     contact_phone VARCHAR(20) NOT NULL,
+    created_by INT DEFAULT NULL,
     is_archived TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_companies_created_by FOREIGN KEY (created_by) REFERENCES faculty(faculty_id) ON DELETE SET NULL,
     CONSTRAINT chk_companies_email CHECK (contact_email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
     CONSTRAINT chk_companies_phone CHECK (contact_phone REGEXP '^\\+?[0-9]{10,15}$'),
     CONSTRAINT chk_companies_reg CHECK (registration_number REGEXP '^[-A-Za-z0-9_]{5,30}$')
@@ -91,6 +95,7 @@ CREATE TABLE companies (
 
 CREATE INDEX idx_companies_location ON companies(location);
 CREATE INDEX idx_companies_archived ON companies(is_archived);
+CREATE INDEX idx_companies_created_by ON companies(created_by);
 
 -- ----------------------------------------------------------------------------
 -- Table 5: internships

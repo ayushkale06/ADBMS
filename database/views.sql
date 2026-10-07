@@ -72,16 +72,50 @@ SELECT
     c.name AS company_name,
     c.registration_number,
     c.location,
+    c.contact_person,
+    c.contact_email,
+    c.contact_phone,
+    c.created_by,
+    f.name AS created_by_faculty_name,
+    f.department AS created_by_faculty_dept,
     c.is_archived,
     COUNT(DISTINCT i.internship_id) AS total_internships_posted,
     COUNT(DISTINCT a.application_id) AS total_applications_received,
     fn_calculate_company_avg_rating(c.company_id) AS avg_student_rating,
     ROUND(AVG(cf.technical_skills), 2) AS avg_intern_tech_rating
 FROM companies c
+LEFT JOIN faculty f ON c.created_by = f.faculty_id
 LEFT JOIN internships i ON c.company_id = i.company_id
 LEFT JOIN applications a ON i.internship_id = a.internship_id
 LEFT JOIN company_feedback cf ON a.application_id = cf.application_id
-GROUP BY c.company_id, c.name, c.registration_number, c.location, c.is_archived;
+GROUP BY c.company_id, c.name, c.registration_number, c.location, c.contact_person, c.contact_email, c.contact_phone, c.created_by, f.name, f.department, c.is_archived;
+
+-- ----------------------------------------------------------------------------
+-- View 4b: vw_company_applicant_details
+-- Detailed view of all student applicants per company.
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE VIEW vw_company_applicant_details AS
+SELECT
+    c.company_id,
+    c.name AS company_name,
+    i.internship_id,
+    i.title AS internship_title,
+    s.student_id,
+    s.name AS student_name,
+    u.email AS student_email,
+    s.department AS student_department,
+    s.gpa AS student_gpa,
+    a.application_id,
+    a.resume_path,
+    a.status AS application_status,
+    a.applied_at,
+    f.name AS posted_by_faculty_name
+FROM companies c
+JOIN internships i ON c.company_id = i.company_id
+JOIN applications a ON i.internship_id = a.internship_id
+JOIN students s ON a.student_id = s.student_id
+JOIN users u ON s.user_id = u.user_id
+JOIN faculty f ON i.posted_by = f.faculty_id;
 
 -- ----------------------------------------------------------------------------
 -- View 5: vw_admin_system_activity

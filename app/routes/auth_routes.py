@@ -69,16 +69,16 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        role = request.form.get('role', 'student').strip().lower()
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirm_password', '')
         phone = request.form.get('phone', '').strip()
         department = request.form.get('department', '').strip()
-        gpa_str = request.form.get('gpa', '0.00').strip()
 
         if not all([name, email, password, phone, department]):
-            flash("All fields are required.", "danger")
+            flash("All standard profile fields are required.", "danger")
             return render_template('register.html')
 
         if password != confirm_password:
@@ -90,26 +90,36 @@ def register():
             flash(pwd_msg, "danger")
             return render_template('register.html')
 
-        try:
-            gpa = float(gpa_str)
-            if not (0.0 <= gpa <= 4.0):
-                flash("GPA must be between 0.00 and 4.00.", "danger")
-                return render_template('register.html')
-        except ValueError:
-            flash("Invalid GPA format.", "danger")
-            return render_template('register.html')
-
         pwd_hash = hash_password(password)
 
         try:
-            # Execute stored procedure sp_register_student
-            # Note: stored procedure inserts user with is_verified = 1 for smooth testing
-            res = execute_query(
-                "CALL sp_register_student(%s, %s, %s, %s, %s, %s, %s, @student_id)",
-                (email, pwd_hash, name, phone, department, gpa, None)
-            )
-            flash("Registration successful! You may now log in.", "success")
-            return redirect(url_for('auth.login'))
+            if role == 'faculty':
+                # Call sp_register_faculty
+                execute_query(
+                    "CALL sp_register_faculty(%s, %s, %s, %s, %s, @faculty_id)",
+                    (email, pwd_hash, name, department, phone)
+                )
+                flash("Faculty registration successful! You may now log in.", "success")
+                return redirect(url_for('auth.login'))
+            else:
+                # Student registration
+                gpa_str = request.form.get('gpa', '0.00').strip()
+                try:
+                    gpa = float(gpa_str)
+                    if not (0.0 <= gpa <= 4.0):
+                        flash("GPA must be between 0.00 and 4.00.", "danger")
+                        return render_template('register.html')
+                except ValueError:
+                    flash("Invalid GPA format.", "danger")
+                    return render_template('register.html')
+
+                execute_query(
+                    "CALL sp_register_student(%s, %s, %s, %s, %s, %s, %s, @student_id)",
+                    (email, pwd_hash, name, phone, department, gpa, None)
+                )
+                flash("Student registration successful! You may now log in.", "success")
+                return redirect(url_for('auth.login'))
+
         except Exception as e:
             flash(f"Registration failed: {str(e)}", "danger")
             return render_template('register.html')
