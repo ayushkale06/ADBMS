@@ -90,10 +90,16 @@ def toggle_internship_archive(internship_id):
         intern = execute_query("SELECT status FROM internships WHERE internship_id = %s", (internship_id,), fetchone=True)
         if intern:
             if intern['status'] == 'archived':
-                execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                try:
+                    execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                except Exception:
+                    execute_query("UPDATE internships SET status = 'open' WHERE internship_id = %s", (internship_id,))
                 flash(f"Internship #{internship_id} restored to open status.", "success")
             else:
-                execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                try:
+                    execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                except Exception:
+                    execute_query("UPDATE internships SET status = 'archived' WHERE internship_id = %s", (internship_id,))
                 flash(f"Internship #{internship_id} archived (soft deleted).", "info")
     except Exception as e:
         flash(f"Archive toggle error: {str(e)}", "danger")

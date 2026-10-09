@@ -398,6 +398,18 @@ BEGIN
 END$$
 
 -- ----------------------------------------------------------------------------
+-- Procedure 7b: sp_restore_internship
+-- Restores an archived internship posting to open status.
+-- ----------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS sp_restore_internship$$
+CREATE PROCEDURE sp_restore_internship(
+    IN p_internship_id INT
+)
+BEGIN
+    UPDATE internships SET status = 'open' WHERE internship_id = p_internship_id;
+END$$
+
+-- ----------------------------------------------------------------------------
 -- Procedure 8: sp_submit_application
 -- Submits student internship application within a transaction. Triggers handle validations.
 -- ----------------------------------------------------------------------------

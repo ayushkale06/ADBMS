@@ -145,10 +145,16 @@ def archive_internship(internship_id):
         intern = execute_query("SELECT status FROM internships WHERE internship_id = %s", (internship_id,), fetchone=True)
         if intern:
             if intern['status'] == 'archived':
-                execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                try:
+                    execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                except Exception:
+                    execute_query("UPDATE internships SET status = 'open' WHERE internship_id = %s", (internship_id,))
                 flash("Internship unarchived and restored to open status successfully!", "success")
             else:
-                execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                try:
+                    execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                except Exception:
+                    execute_query("UPDATE internships SET status = 'archived' WHERE internship_id = %s", (internship_id,))
                 flash("Internship archived successfully.", "info")
     except Exception as e:
         flash(f"Archive toggle error: {str(e)}", "danger")
