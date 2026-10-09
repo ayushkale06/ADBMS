@@ -177,6 +177,7 @@ SELECT
     i.posted_by AS faculty_id,
     f.name AS faculty_name,
     c.name AS company_name,
+    c.is_archived AS company_is_archived,
     i.title,
     i.domain,
     i.duration_weeks,
@@ -191,7 +192,7 @@ FROM internships i
 JOIN faculty f ON i.posted_by = f.faculty_id
 JOIN companies c ON i.company_id = c.company_id
 LEFT JOIN applications a ON i.internship_id = a.internship_id
-GROUP BY i.internship_id, i.posted_by, f.name, c.name, i.title, i.domain, i.duration_weeks, i.stipend, i.status, i.application_deadline;
+GROUP BY i.internship_id, i.posted_by, f.name, c.name, c.is_archived, i.title, i.domain, i.duration_weeks, i.stipend, i.status, i.application_deadline;
 
 -- ----------------------------------------------------------------------------
 -- View 8: vw_faculty_application_review

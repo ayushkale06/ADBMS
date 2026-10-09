@@ -427,13 +427,25 @@ END$$
 
 -- ----------------------------------------------------------------------------
 -- Procedure 7b: sp_restore_internship
--- Restores an archived internship posting to open status.
+-- Restores an archived internship posting to open status (only if parent company is active).
 -- ----------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_restore_internship$$
 CREATE PROCEDURE sp_restore_internship(
     IN p_internship_id INT
 )
 BEGIN
+    DECLARE v_is_company_archived TINYINT DEFAULT 0;
+
+    SELECT c.is_archived INTO v_is_company_archived
+    FROM internships i
+    JOIN companies c ON i.company_id = c.company_id
+    WHERE i.internship_id = p_internship_id;
+
+    IF v_is_company_archived = 1 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Operation Failed: Cannot restore internship while its parent company is archived. Please restore the company first.';
+    END IF;
+
     UPDATE internships SET status = 'open' WHERE internship_id = p_internship_id;
 END$$
 

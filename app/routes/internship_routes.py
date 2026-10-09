@@ -145,9 +145,17 @@ def archive_internship(internship_id):
         intern = execute_query("SELECT status FROM internships WHERE internship_id = %s", (internship_id,), fetchone=True)
         if intern:
             if intern['status'] == 'archived':
+                comp = execute_query(
+                    "SELECT c.is_archived, c.name FROM internships i JOIN companies c ON i.company_id = c.company_id WHERE i.internship_id = %s",
+                    (internship_id,), fetchone=True
+                )
+                if comp and comp['is_archived']:
+                    flash(f"Cannot restore internship: The parent company '{comp['name']}' is currently archived. Please restore the company first.", "warning")
+                    return redirect(request.referrer or url_for('main.dashboard'))
+
                 try:
                     execute_query("CALL sp_restore_internship(%s)", (internship_id,))
-                except Exception:
+                except Exception as ex:
                     execute_query("UPDATE internships SET status = 'open' WHERE internship_id = %s", (internship_id,))
                 flash("Internship unarchived and restored to open status successfully!", "success")
             else:
