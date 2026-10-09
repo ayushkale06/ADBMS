@@ -308,26 +308,54 @@ END$$
 
 -- ----------------------------------------------------------------------------
 -- Procedure 4: sp_archive_company
--- Soft deletion / archiving of company.
+-- Soft deletion / archiving of company and all associated internships.
 -- ----------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_archive_company$$
 CREATE PROCEDURE sp_archive_company(
     IN p_company_id INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- Archive the company
     UPDATE companies SET is_archived = 1 WHERE company_id = p_company_id;
+
+    -- Cascade soft-delete: Archive all internships belonging to this company
+    UPDATE internships SET status = 'archived' WHERE company_id = p_company_id;
+
+    COMMIT;
 END$$
 
 -- ----------------------------------------------------------------------------
 -- Procedure 4b: sp_restore_company
--- Restores an archived company.
+-- Restores an archived company and all its associated internships.
 -- ----------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS sp_restore_company$$
 CREATE PROCEDURE sp_restore_company(
     IN p_company_id INT
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    -- Restore the company
     UPDATE companies SET is_archived = 0 WHERE company_id = p_company_id;
+
+    -- Cascade restore: Restore all archived internships belonging to this company to open status
+    UPDATE internships SET status = 'open' WHERE company_id = p_company_id AND status = 'archived';
+
+    COMMIT;
 END$$
 
 -- ----------------------------------------------------------------------------

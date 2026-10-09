@@ -143,11 +143,19 @@ def archive_company(company_id):
         comp = execute_query("SELECT is_archived FROM companies WHERE company_id = %s", (company_id,), fetchone=True)
         if comp:
             if comp['is_archived']:
-                execute_query("CALL sp_restore_company(%s)", (company_id,))
-                flash(f"Company #{company_id} restored to active status.", "success")
+                try:
+                    execute_query("CALL sp_restore_company(%s)", (company_id,))
+                except Exception:
+                    execute_query("UPDATE companies SET is_archived = 0 WHERE company_id = %s", (company_id,))
+                    execute_query("UPDATE internships SET status = 'open' WHERE company_id = %s AND status = 'archived'", (company_id,))
+                flash(f"Company #{company_id} and its associated internships restored to active status.", "success")
             else:
-                execute_query("CALL sp_archive_company(%s)", (company_id,))
-                flash(f"Company #{company_id} archived (soft deleted).", "info")
+                try:
+                    execute_query("CALL sp_archive_company(%s)", (company_id,))
+                except Exception:
+                    execute_query("UPDATE companies SET is_archived = 1 WHERE company_id = %s", (company_id,))
+                    execute_query("UPDATE internships SET status = 'archived' WHERE company_id = %s", (company_id,))
+                flash(f"Company #{company_id} and all its internships archived successfully.", "info")
     except Exception as e:
         flash(f"Archive toggle error: {str(e)}", "danger")
     return redirect(request.referrer or url_for('main.dashboard'))
