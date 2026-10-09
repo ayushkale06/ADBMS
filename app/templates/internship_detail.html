@@ -84,6 +84,13 @@
                         <a href="{{ url_for('faculty.applications_list') }}?internship={{ internship.internship_id }}" class="btn btn-primary px-4 fw-bold">
                             <i class="fa-solid fa-users-viewfinder me-2"></i> View Applicants for this Position
                         </a>
+                        <form method="POST" action="{{ url_for('internships.archive_internship', internship_id=internship.internship_id) }}" class="d-inline">
+                            {% if internship.status == 'archived' %}
+                                <button type="submit" class="btn btn-success px-4 fw-bold"><i class="fa-solid fa-rotate-left me-2"></i> Unarchive / Restore Position</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-outline-danger px-4 fw-bold" onclick="return confirm('Archive this internship?');"><i class="fa-solid fa-box-archive me-2"></i> Archive Position</button>
+                            {% endif %}
+                        </form>
                     </div>
                 {% else %}
                     <p class="mb-2">Log in as a student to submit an application for this position.</p>

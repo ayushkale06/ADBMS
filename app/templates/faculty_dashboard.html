@@ -84,8 +84,12 @@
                         </td>
                         <td class="small text-muted">{{ i.application_deadline }}</td>
                         <td>
-                            <form method="POST" action="{{ url_for('internships.archive_internship', internship_id=i.internship_id) }}" style="display:inline;" onsubmit="return confirm('Archive this internship?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive"><i class="fa-solid fa-box-archive"></i></button>
+                            <form method="POST" action="{{ url_for('internships.archive_internship', internship_id=i.internship_id) }}" style="display:inline;">
+                                {% if i.status == 'archived' %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-bold" title="Unarchive / Restore Position"><i class="fa-solid fa-rotate-left me-1"></i> Restore</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Archive Position" onclick="return confirm('Archive this internship?');"><i class="fa-solid fa-box-archive me-1"></i> Archive</button>
+                                {% endif %}
                             </form>
                         </td>
                     </tr>

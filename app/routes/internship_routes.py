@@ -137,12 +137,19 @@ def create_internship():
     return render_template('internship_form.html', companies=companies)
 
 @internship_bp.route('/internships/<int:internship_id>/archive', methods=['POST'])
+@internship_bp.route('/internships/<int:internship_id>/toggle-archive', methods=['POST'])
 @login_required
 @role_required('faculty', 'admin')
 def archive_internship(internship_id):
     try:
-        execute_query("CALL sp_archive_internship(%s)", (internship_id,))
-        flash("Internship archived successfully.", "info")
+        intern = execute_query("SELECT status FROM internships WHERE internship_id = %s", (internship_id,), fetchone=True)
+        if intern:
+            if intern['status'] == 'archived':
+                execute_query("CALL sp_restore_internship(%s)", (internship_id,))
+                flash("Internship unarchived and restored to open status successfully!", "success")
+            else:
+                execute_query("CALL sp_archive_internship(%s)", (internship_id,))
+                flash("Internship archived successfully.", "info")
     except Exception as e:
-        flash(f"Archive error: {str(e)}", "danger")
-    return redirect(url_for('main.dashboard'))
+        flash(f"Archive toggle error: {str(e)}", "danger")
+    return redirect(request.referrer or url_for('main.dashboard'))
